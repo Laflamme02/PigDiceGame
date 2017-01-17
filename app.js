@@ -10,7 +10,9 @@ GAME RULES:
 */
 
 // Initialize the game
-var scores, roundScores, activePlayer, gamePlaying;
+var scores, roundScores, activePlayer, gamePlaying, dice, previousRoll;
+dice = 0;
+previousRoll = 0;
 
 function init() {
     gamePlaying = true;
@@ -48,7 +50,8 @@ init();
 
 // Switch the active player
 function nextPlayer() {
-    //TERNARY OPERATORS
+        // TO-DO (Maybe): Set previousRoll = 0 when nextPlayer is called???
+    // TERNARY OPERATOR
         activePlayer === 0 ? activePlayer = 1 : activePlayer = 0;
         roundScore = 0;
         document.getElementById('current-0').textContent = 0;
@@ -62,26 +65,45 @@ function nextPlayer() {
 
 // Generate random number from 1-6 when ROLL DICE is clicked
 document.querySelector('.btn-roll').addEventListener('click', function() {
-    if(gamePlaying) {
-    //1. Roll dice
-    var dice = Math.floor(Math.random() * 6) + 1;
-    
-    //2. Display result
-    var diceDOM = document.querySelector('.dice');
-    diceDOM.style.display = 'block';
-    diceDOM.src = 'dice-' + dice + '.png';
+    if(gamePlaying) {                
+        // Set previousRoll to the last dice value
+        previousRoll = dice;
         
-    //3. Update round score IF the rolled number was NOT 1
+        // Roll dice
+        dice = Math.floor(Math.random() * 6) + 1;
+        
+        // Display result
+        var diceDOM = document.querySelector('.dice');
+        diceDOM.style.display = 'block';
+        diceDOM.src = 'dice-' + dice + '.png';
+        
+        // Set player's TOTAL score to 0 if they roll two 6s in a row
+        if (dice === 6) {
+            if(previousRoll === 6) {
+                // Set globalScore to 0
+                scores[activePlayer] = 0;
+            
+                // Update the UI to show the GLOBAL score of 0
+                document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
+            
+                // Change player
+                nextPlayer();      
+        }
+    }
+
+    
+    //3. Update round score IF the rolled number was NOT 1 
     if(dice !== 1) {
         // Add score
         roundScore += dice; 
         document.querySelector('#current-' + activePlayer).textContent = roundScore
     } else {
-        // Switch the player
+        // Switch player
         nextPlayer();        
     }
     
-    console.log(dice);
+    console.log('Dice roll: ' + dice);
+    console.log('Previous Roll: ' + previousRoll)
         
     }
 
@@ -97,7 +119,7 @@ document.querySelector('.btn-hold').addEventListener('click',function() {
         document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
     
         //Check if player won the game     
-        if(scores[activePlayer] >= 10) {
+        if(scores[activePlayer] >= 100) {
             document.querySelector('#name-' + activePlayer).textContent = 'Winner!' 
             document.querySelector('.dice').style.display = 'none';
             document.querySelector('.player-' + activePlayer + '-panel').classList.add('winner');
@@ -107,7 +129,6 @@ document.querySelector('.btn-hold').addEventListener('click',function() {
             // Change player
             nextPlayer();
         }
-        
     }
         
 });
